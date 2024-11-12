@@ -1,2 +1,4 @@
 # go-microservice-users
-Go microservice for storing users, credentials, login and registration security
+*Go microservice for storing users, credentials, login and registration security*
+
+## Work in progress...
