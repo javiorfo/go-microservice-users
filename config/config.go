@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/javiorfo/go-microservice-users/internal/database"
 	"github.com/javiorfo/go-microservice-lib/env"
+	"github.com/javiorfo/go-microservice-lib/security"
+	"github.com/javiorfo/go-microservice-users/internal/database"
 )
 
 var DBDataConnection = database.DBDataConnection{
@@ -14,6 +15,7 @@ var DBDataConnection = database.DBDataConnection{
 	ShowSQLInfo: true,
 }
 
+
 // App configuration
 const AppName = "go-microservice-users"
 const AppPort = ":8080"
@@ -24,3 +26,9 @@ var TracingHost = env.GetEnvOrDefault("TRACING_HOST", "http://localhost:4318")
 
 // Swagger configuration
 var SwaggerEnabled = env.GetEnvOrDefault("SWAGGER_ENABLED", "true")
+
+var TokenHandler = security.TokenHandler{
+    SecretKey: "secretKey",
+    AppName: AppName,
+    Enabled: true,
+}

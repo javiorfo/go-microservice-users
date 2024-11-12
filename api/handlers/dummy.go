@@ -27,7 +27,7 @@ import (
 //	@Failure		400	{object}	response.restResponseError	"Invalid ID"
 //	@Failure		404	{object}	response.restResponseError	"Internal Error"
 //	@Router			/dummy/{id} [get]
-//	@Security		OAuth2Password
+//	@Security		BearerAuth
 func GetDummyById(ds service.DummyService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		param := c.Params("id")
@@ -62,7 +62,7 @@ func GetDummyById(ds service.DummyService) fiber.Handler {
 //	@Failure		400			{object}	response.restResponseError						"Invalid query parameters"
 //	@Failure		500			{object}	response.restResponseError						"Internal server error"
 //	@Router			/dummy [get]
-//	@Security		OAuth2Password
+//	@Security		BearerAuth
 func GetDummies(ds service.DummyService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		p := c.Query("page", "1")
@@ -102,7 +102,7 @@ func GetDummies(ds service.DummyService) fiber.Handler {
 //	@Failure		400		{object}	response.restResponseError	"Invalid request body or validation errors"
 //	@Failure		500		{object}	response.restResponseError	"Internal server error"
 //	@Router			/dummy [post]
-//	@Security		OAuth2Password
+//	@Security		BearerAuth
 func CreateDummy(ds service.DummyService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		dummyRequest := new(request.Dummy)

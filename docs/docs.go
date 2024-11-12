@@ -26,7 +26,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "OAuth2Password": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Get a list of dummies with pagination",
@@ -90,7 +90,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "OAuth2Password": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Create a new dummy item with the provided information",
@@ -141,7 +141,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "OAuth2Password": []
+                        "BearerAuth": []
                     }
                 ],
                 "description": "Get dummy details by ID",
@@ -262,10 +262,10 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "OAuth2Password": {
-            "type": "oauth2",
-            "flow": "password",
-            "tokenUrl": "KEYCLOAK_HOST/realms/javi/protocol/openid-connect/token"
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

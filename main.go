@@ -19,19 +19,18 @@ import (
 	"github.com/javiorfo/go-microservice-lib/tracing"
 )
 
-//	@contact.name							API Support
-//	@contact.email							fiber@swagger.io
-//	@license.name							Apache 2.0
-//	@license.url							http://www.apache.org/licenses/LICENSE-2.0.html
-//	@securityDefinitions.oauth2.password	OAuth2Password
-//	@tokenUrl								KEYCLOAK_HOST/realms/javi/protocol/openid-connect/token
-//	@scopes.read							Grants read access
-//	@scopes.write							Grants write access
+//	@contact.name				API Support
+//	@contact.email				fiber@swagger.io
+//	@license.name				Apache 2.0
+//	@license.url				http://www.apache.org/licenses/LICENSE-2.0.html
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
 func main() {
 	// Database
 	err := config.DBDataConnection.Connect()
 	if err != nil {
-		log.Fatal("Failed to connect to database. \n", err)
+		log.Fatal("Failed to connect to database.\n", err)
 	}
 
 	// Tracing

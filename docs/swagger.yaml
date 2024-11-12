@@ -91,7 +91,7 @@ paths:
           schema:
             $ref: '#/definitions/response.restResponseError'
       security:
-      - OAuth2Password: []
+      - BearerAuth: []
       summary: List all dummies
       tags:
       - dummy
@@ -122,7 +122,7 @@ paths:
           schema:
             $ref: '#/definitions/response.restResponseError'
       security:
-      - OAuth2Password: []
+      - BearerAuth: []
       summary: Create a new dummy item
       tags:
       - dummy
@@ -153,13 +153,13 @@ paths:
           schema:
             $ref: '#/definitions/response.restResponseError'
       security:
-      - OAuth2Password: []
+      - BearerAuth: []
       summary: Find a dummy by ID
       tags:
       - dummy
 securityDefinitions:
-  OAuth2Password:
-    flow: password
-    tokenUrl: KEYCLOAK_HOST/realms/javi/protocol/openid-connect/token
-    type: oauth2
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
