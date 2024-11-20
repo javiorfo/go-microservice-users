@@ -13,19 +13,19 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/javiorfo/go-microservice-lib/tracing"
 	"github.com/javiorfo/go-microservice-users/config"
 	_ "github.com/javiorfo/go-microservice-users/docs"
 	"github.com/javiorfo/go-microservice-users/internal/injection"
-	"github.com/javiorfo/go-microservice-lib/tracing"
 )
 
-//	@contact.name				API Support
-//	@contact.email				fiber@swagger.io
-//	@license.name				Apache 2.0
-//	@license.url				http://www.apache.org/licenses/LICENSE-2.0.html
-//	@securityDefinitions.apikey	BearerAuth
-//	@in							header
-//	@name						Authorization
+// @contact.name				API Support
+// @contact.email				fiber@swagger.io
+// @license.name				Apache 2.0
+// @license.url				http://www.apache.org/licenses/LICENSE-2.0.html
+// @securityDefinitions.apikey	BearerAuth
+// @in							header
+// @name						Authorization
 func main() {
 	// Database
 	err := config.DBDataConnection.Connect()
@@ -86,11 +86,11 @@ func main() {
 	injection.Inject(api)
 
 	// Swagger
-	if config.SwaggerEnabled == "true" {
+	if config.SwaggerEnabled {
 		app.Get(fmt.Sprintf("%s/swagger/*", config.AppContextPath), swagger.New(swagger.Config{
 			DeepLinking:  false,
 			DocExpansion: "list",
-/* 			OAuth: &swagger.OAuthConfig{
+			/* 			OAuth: &swagger.OAuthConfig{
 				Realm:        config.KeycloakConfig.Realm,
 				ClientId:     config.KeycloakConfig.ClientID,
 				ClientSecret: config.KeycloakConfig.ClientSecret,

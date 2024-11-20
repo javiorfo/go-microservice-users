@@ -1,33 +1,35 @@
 package handlers
 
 import (
-	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 	"net/http"
 	"strconv"
 
-	"github.com/javiorfo/go-microservice-users/api/request"
-	"github.com/javiorfo/go-microservice-users/domain/model"
-	"github.com/javiorfo/go-microservice-users/domain/service"
+	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
+
 	"github.com/javiorfo/go-microservice-lib/auditory"
 	"github.com/javiorfo/go-microservice-lib/pagination"
 	"github.com/javiorfo/go-microservice-lib/response"
 	"github.com/javiorfo/go-microservice-lib/response/codes"
+	"github.com/javiorfo/go-microservice-lib/security"
 	"github.com/javiorfo/go-microservice-lib/tracing"
+	"github.com/javiorfo/go-microservice-users/api/request"
+	"github.com/javiorfo/go-microservice-users/domain/model"
+	"github.com/javiorfo/go-microservice-users/domain/service"
 )
 
-//	@Summary		Find a dummy by ID
-//	@Description	Get dummy details by ID
-//	@Tags			dummy
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		int	true	"Dummy ID"
-//	@Success		200	{object}	model.Dummy
-//	@Failure		400	{object}	response.restResponseError	"Invalid ID"
-//	@Failure		404	{object}	response.restResponseError	"Internal Error"
-//	@Router			/dummy/{id} [get]
-//	@Security		BearerAuth
+// @Summary		Find a dummy by ID
+// @Description	Get dummy details by ID
+// @Tags			dummy
+// @Accept			json
+// @Produce		json
+// @Param			id	path		int	true	"Dummy ID"
+// @Success		200	{object}	model.Dummy
+// @Failure		400	{object}	response.restResponseError	"Invalid ID"
+// @Failure		404	{object}	response.restResponseError	"Internal Error"
+// @Router			/dummy/{id} [get]
+// @Security		BearerAuth
 func GetDummyById(ds service.DummyService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		param := c.Params("id")
@@ -49,20 +51,20 @@ func GetDummyById(ds service.DummyService) fiber.Handler {
 	}
 }
 
-//	@Summary		List all dummies
-//	@Description	Get a list of dummies with pagination
-//	@Tags			dummy
-//	@Accept			json
-//	@Produce		json
-//	@Param			page		query		int												false	"Page number"
-//	@Param			size		query		int												false	"Size per page"
-//	@Param			sortBy		query		string											false	"Sort by field"
-//	@Param			sortOrder	query		string											false	"Sort order (asc or desc)"
-//	@Success		200			{object}	response.RestResponsePagination[model.Dummy]	"Paginated list of dummies"
-//	@Failure		400			{object}	response.restResponseError						"Invalid query parameters"
-//	@Failure		500			{object}	response.restResponseError						"Internal server error"
-//	@Router			/dummy [get]
-//	@Security		BearerAuth
+// @Summary		List all dummies
+// @Description	Get a list of dummies with pagination
+// @Tags			dummy
+// @Accept			json
+// @Produce		json
+// @Param			page		query		int												false	"Page number"
+// @Param			size		query		int												false	"Size per page"
+// @Param			sortBy		query		string											false	"Sort by field"
+// @Param			sortOrder	query		string											false	"Sort order (asc or desc)"
+// @Success		200			{object}	response.RestResponsePagination[model.Dummy]	"Paginated list of dummies"
+// @Failure		400			{object}	response.restResponseError						"Invalid query parameters"
+// @Failure		500			{object}	response.restResponseError						"Internal server error"
+// @Router			/dummy [get]
+// @Security		BearerAuth
 func GetDummies(ds service.DummyService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		p := c.Query("page", "1")
@@ -92,17 +94,17 @@ func GetDummies(ds service.DummyService) fiber.Handler {
 	}
 }
 
-//	@Summary		Create a new dummy item
-//	@Description	Create a new dummy item with the provided information
-//	@Tags			dummy
-//	@Accept			json
-//	@Produce		json
-//	@Param			dummy	body		request.Dummy	true	"Dummy information"
-//	@Success		201		{object}	model.Dummy
-//	@Failure		400		{object}	response.restResponseError	"Invalid request body or validation errors"
-//	@Failure		500		{object}	response.restResponseError	"Internal server error"
-//	@Router			/dummy [post]
-//	@Security		BearerAuth
+// @Summary		Create a new dummy item
+// @Description	Create a new dummy item with the provided information
+// @Tags			dummy
+// @Accept			json
+// @Produce		json
+// @Param			dummy	body		request.Dummy	true	"Dummy information"
+// @Success		201		{object}	model.Dummy
+// @Failure		400		{object}	response.restResponseError	"Invalid request body or validation errors"
+// @Failure		500		{object}	response.restResponseError	"Internal server error"
+// @Router			/dummy [post]
+// @Security		BearerAuth
 func CreateDummy(ds service.DummyService) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		dummyRequest := new(request.Dummy)
@@ -123,7 +125,7 @@ func CreateDummy(ds service.DummyService) fiber.Handler {
 		dummy := model.Dummy{
 			Info: dummyRequest.Info,
 			Auditable: auditory.Auditable{
-				CreatedBy: auditory.GetTokenUser(c),
+				CreatedBy: security.GetTokenUsername(c),
 			},
 		}
 		err := ds.Create(&dummy)

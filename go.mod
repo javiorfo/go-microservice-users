@@ -6,7 +6,8 @@ require (
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/gofiber/swagger v1.1.0
-	github.com/javiorfo/go-microservice-lib v0.0.0-20241107131314-b3f6c3b0546a
+	github.com/golang-jwt/jwt/v5 v5.0.0
+	github.com/javiorfo/go-microservice-lib v0.0.0-20241120182317-4b10b67f1d72
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/swag v1.16.3
 	github.com/testcontainers/testcontainers-go v0.32.0
@@ -14,8 +15,6 @@ require (
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.11
 )
-
-replace github.com/javiorfo/go-microservice-lib => /home/javier/dev/go/go-microservice-lib
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
@@ -51,7 +50,6 @@ require (
 	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
-	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
