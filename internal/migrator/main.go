@@ -14,7 +14,11 @@ func main() {
 	db := database.DBinstance
 
 	log.Info("Running migrations...")
-	err := db.AutoMigrate(&model.Dummy{})
+	err := db.AutoMigrate(
+        &model.User{},
+        &model.Permission{},
+        &model.Role{},
+    )
 	if err != nil {
 		log.Errorf("failed to migrate database: %v", err)
 		return

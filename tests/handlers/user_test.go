@@ -1,4 +1,4 @@
-package dummy_test
+package user_test
 
 import (
 	"bytes"
@@ -10,22 +10,22 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/javiorfo/go-microservice-lib/pagination"
+	"github.com/javiorfo/go-microservice-lib/response"
 	"github.com/javiorfo/go-microservice-users/api/request"
 	"github.com/javiorfo/go-microservice-users/api/routes"
 	"github.com/javiorfo/go-microservice-users/domain/model"
-	"github.com/javiorfo/go-microservice-lib/pagination"
-	"github.com/javiorfo/go-microservice-lib/response"
 	"github.com/javiorfo/go-microservice-users/tests/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-func setupTest() (*fiber.App, *mocks.MockDummyService) {
+func setupTest() (*fiber.App, *mocks.MockUserService) {
 	app := fiber.New()
 	mockSec := new(mocks.MockSecurizer)
-	mockService := new(mocks.MockDummyService)
+	mockService := new(mocks.MockUserService)
 
-	routes.Dummy(app, mockSec, mockService)
+	routes.User(app, mockSec, mockService)
 
 	return app, mockService
 }
@@ -34,12 +34,12 @@ func setupTest() (*fiber.App, *mocks.MockDummyService) {
 func TestFindById(t *testing.T) {
 	tests := []struct {
 		id           string
-		mockReturn   *model.Dummy
+		mockReturn   *model.User
 		mockError    error
 		expectedCode int
 	}{
-		{"1", &model.Dummy{Info: "info"}, nil, fiber.StatusOK},
-		{"2", nil, errors.New("Dummy not found"), fiber.StatusNotFound},
+		{"1", &model.User{Username: "username"}, nil, fiber.StatusOK},
+		{"2", nil, errors.New("User not found"), fiber.StatusNotFound},
 		{"invalid", nil, nil, fiber.StatusBadRequest},
 	}
 
@@ -51,16 +51,16 @@ func TestFindById(t *testing.T) {
 				mockService.On("FindById", uint(id)).Return(tt.mockReturn, tt.mockError)
 			}
 
-			req := httptest.NewRequest("GET", "/dummy/"+tt.id, nil)
+			req := httptest.NewRequest("GET", "/"+tt.id, nil)
 			resp, err := app.Test(req)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expectedCode, resp.StatusCode)
 
-			if tt.expectedCode == http.StatusOK {
-				var responseBody model.Dummy
+			if tt.expectedCode == fiber.StatusOK {
+				var responseBody model.User
 				json.NewDecoder(resp.Body).Decode(&responseBody)
-				assert.Equal(t, "info", responseBody.Info)
+				assert.Equal(t, "username", responseBody.Username)
 			}
 
 			mockService.AssertExpectations(t)
@@ -74,18 +74,18 @@ func TestFindAll(t *testing.T) {
 	t.Run("Successful", func(t *testing.T) {
 		app, mockService := setupTest()
 		page := pagination.Page{Page: 1, Size: 10, SortBy: "info", SortOrder: "asc"}
-		mockService.On("FindAll", page).Return([]model.Dummy{{ID: 1, Info: "info"}}, nil)
+		mockService.On("FindAll", page).Return([]model.User{{ID: 1, Username: "username"}}, nil)
 
-		req := httptest.NewRequest("GET", "/dummy?page=1&size=10&sortBy=info&sortOrder=asc", nil)
+		req := httptest.NewRequest("GET", "/?page=1&size=10&sortBy=info&sortOrder=asc", nil)
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusOK, resp.StatusCode)
 
-		var responseBody response.RestResponsePagination[model.Dummy]
+		var responseBody response.RestResponsePagination[model.User]
 		json.NewDecoder(resp.Body).Decode(&responseBody)
 		assert.Equal(t, 1, responseBody.Pagination.Total)
-		assert.Equal(t, "info", responseBody.Elements[0].Info)
+		assert.Equal(t, "username", responseBody.Elements[0].Username)
 
 		mockService.AssertExpectations(t)
 	})
@@ -94,7 +94,7 @@ func TestFindAll(t *testing.T) {
 		app, mockService := setupTest()
 		mockService.On("FindAll", mock.Anything).Return(nil, errors.New("data source error"))
 
-		req := httptest.NewRequest("GET", "/dummy?page=1&size=10&sortBy=id&sortOrder=asc", nil)
+		req := httptest.NewRequest("GET", "/?page=1&size=10&sortBy=id&sortOrder=asc", nil)
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
@@ -106,7 +106,7 @@ func TestFindAll(t *testing.T) {
 	t.Run("Pagination Bad Request", func(t *testing.T) {
 		app, _ := setupTest()
 
-		req := httptest.NewRequest("GET", "/dummy?page=invalid&size=10&sortBy=id&sortOrder=asc", nil)
+		req := httptest.NewRequest("GET", "/?page=invalid&size=10&sortBy=id&sortOrder=asc", nil)
 		resp, err := app.Test(req)
 
 		assert.NoError(t, err)
@@ -120,11 +120,20 @@ func TestCreate(t *testing.T) {
 	t.Run("Successful", func(t *testing.T) {
 		app, mockService := setupTest()
 
-		dummyRequest := request.Dummy{Info: "dummy info"}
-		mockService.On("Create", mock.Anything).Return(nil)
+		userRequest := request.User{
+			Username: "username",
+			Email:    "mail@mail.com",
+			Permission: request.Permission{
+				Name:  "PERM",
+				Roles: []string{"one", "two"},
+			},
+		}
 
-		body, _ := json.Marshal(dummyRequest)
-		req := httptest.NewRequest("POST", "/dummy", bytes.NewBuffer(body))
+        password := "1234"
+		mockService.On("Create", mock.Anything).Return(&password, nil)
+
+		body, _ := json.Marshal(userRequest)
+		req := httptest.NewRequest("POST", "/", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
 
 		resp, err := app.Test(req)
@@ -132,9 +141,9 @@ func TestCreate(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, fiber.StatusCreated, resp.StatusCode)
 
-		var responseBody model.Dummy
+		var responseBody map[string]string
 		json.NewDecoder(resp.Body).Decode(&responseBody)
-		assert.Equal(t, "dummy info", responseBody.Info)
+		assert.Equal(t, password, responseBody["password"])
 
 		mockService.AssertExpectations(t)
 	})
@@ -143,7 +152,7 @@ func TestCreate(t *testing.T) {
 		app, _ := setupTest()
 
 		body := `{ "invalid": 10 }`
-		req := httptest.NewRequest(fiber.MethodPost, "/dummy", bytes.NewBufferString(body))
+		req := httptest.NewRequest(fiber.MethodPost, "/", bytes.NewBufferString(body))
 		req.Header.Set("Content-Type", "application/json")
 
 		resp, err := app.Test(req)
@@ -155,11 +164,18 @@ func TestCreate(t *testing.T) {
 	t.Run("Internal Server Error", func(t *testing.T) {
 		app, mockService := setupTest()
 
-		dummyRequest := request.Dummy{Info: "test info"}
-		mockService.On("Create", mock.Anything).Return(errors.New("service error"))
+		userRequest := request.User{
+			Username: "username",
+			Email:    "mail@mail.com",
+			Permission: request.Permission{
+				Name:  "PERM",
+				Roles: []string{"one", "two"},
+			},
+		}
+		mockService.On("Create", mock.Anything).Return(nil, errors.New("service error"))
 
-		body, _ := json.Marshal(dummyRequest)
-		req := httptest.NewRequest(fiber.MethodPost, "/dummy", bytes.NewBuffer(body))
+		body, _ := json.Marshal(userRequest)
+		req := httptest.NewRequest(fiber.MethodPost, "/", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
 		resp, _ := app.Test(req)
 

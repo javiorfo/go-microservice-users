@@ -1,17 +1,67 @@
 definitions:
-  model.Dummy:
+  model.Permission:
     properties:
       id:
         type: integer
-      info:
+      name:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/model.Role'
+        type: array
+    type: object
+  model.Role:
+    properties:
+      id:
+        type: integer
+      name:
         type: string
     type: object
-  request.Dummy:
+  model.User:
     properties:
-      info:
+      email:
+        type: string
+      id:
+        type: integer
+      permission:
+        $ref: '#/definitions/model.Permission'
+      username:
+        type: string
+    type: object
+  request.LoginUser:
+    properties:
+      password:
+        type: string
+      username:
         type: string
     required:
-    - info
+    - password
+    - username
+    type: object
+  request.Permission:
+    properties:
+      name:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+    required:
+    - name
+    - roles
+    type: object
+  request.User:
+    properties:
+      email:
+        type: string
+      permission:
+        $ref: '#/definitions/request.Permission'
+      username:
+        type: string
+    required:
+    - email
+    - permission
+    - username
     type: object
   response.PaginationResponse:
     properties:
@@ -29,11 +79,11 @@ definitions:
       message:
         type: string
     type: object
-  response.RestResponsePagination-model_Dummy:
+  response.RestResponsePagination-model_User:
     properties:
       elements:
         items:
-          $ref: '#/definitions/model.Dummy'
+          $ref: '#/definitions/model.User'
         type: array
       pagination:
         $ref: '#/definitions/response.PaginationResponse'
@@ -53,11 +103,11 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 paths:
-  /dummy:
+  /:
     get:
       consumes:
       - application/json
-      description: Get a list of dummies with pagination
+      description: Get a list of users with pagination
       parameters:
       - description: Page number
         in: query
@@ -79,9 +129,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: Paginated list of dummies
+          description: Paginated list of users
           schema:
-            $ref: '#/definitions/response.RestResponsePagination-model_Dummy'
+            $ref: '#/definitions/response.RestResponsePagination-model_User'
         "400":
           description: Invalid query parameters
           schema:
@@ -92,27 +142,26 @@ paths:
             $ref: '#/definitions/response.restResponseError'
       security:
       - BearerAuth: []
-      summary: List all dummies
+      summary: List all users
       tags:
-      - dummy
+      - user
     post:
       consumes:
       - application/json
-      description: Create a new dummy item with the provided information
+      description: Create a new user with the provided information
       parameters:
-      - description: Dummy information
+      - description: User information
         in: body
-        name: dummy
+        name: user
         required: true
         schema:
-          $ref: '#/definitions/request.Dummy'
+          $ref: '#/definitions/request.User'
       produces:
       - application/json
       responses:
         "201":
           description: Created
-          schema:
-            $ref: '#/definitions/model.Dummy'
+          schema: {}
         "400":
           description: Invalid request body or validation errors
           schema:
@@ -123,16 +172,16 @@ paths:
             $ref: '#/definitions/response.restResponseError'
       security:
       - BearerAuth: []
-      summary: Create a new dummy item
+      summary: Create a new user
       tags:
-      - dummy
-  /dummy/{id}:
+      - user
+  /{id}:
     get:
       consumes:
       - application/json
-      description: Get dummy details by ID
+      description: Get user details by ID
       parameters:
-      - description: Dummy ID
+      - description: User ID
         in: path
         name: id
         required: true
@@ -143,7 +192,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Dummy'
+            $ref: '#/definitions/model.User'
         "400":
           description: Invalid ID
           schema:
@@ -154,9 +203,40 @@ paths:
             $ref: '#/definitions/response.restResponseError'
       security:
       - BearerAuth: []
-      summary: Find a dummy by ID
+      summary: Find a user by ID
       tags:
-      - dummy
+      - user
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login a user and return a JWT token
+      parameters:
+      - description: Username and password
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema: {}
+        "400":
+          description: Invalid request body or validation errors
+          schema:
+            $ref: '#/definitions/response.restResponseError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.restResponseError'
+      security:
+      - BearerAuth: []
+      summary: Login user
+      tags:
+      - user
 securityDefinitions:
   BearerAuth:
     in: header

@@ -1,4 +1,4 @@
-package dummy_test
+package user_test 
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 
 var db *gorm.DB
 var container testcontainers.Container
-var repo repository.DummyRepository
+var repo repository.UserRepository
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()
@@ -56,11 +56,11 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Failed to connect to database: %s", err)
 	}
 
-	if err := db.AutoMigrate(&model.Dummy{}); err != nil {
+	if err := db.AutoMigrate(&model.User{}, &model.Permission{}, &model.Role{}); err != nil {
 		log.Fatalf("Failed to migrate database: %s", err)
 	}
 
-	repo = repository.NewDummyRepository(db)
+	repo = repository.NewUserRepository(db)
 
 	// Run the tests
 	code := m.Run()
@@ -73,20 +73,37 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestDummy(t *testing.T) {
+func TestUser(t *testing.T) {
 
-	dummyRecord := model.Dummy{Info: "testname"}
+	userRecord := model.User{
+        Username: "testusername",
+        Email: "mail@test.com",
+        Password: "p4$$w0rd",
+        Salt: "54LT",
+        Temporary: false,
+        Permission: model.Permission{
+            Name: "PERM1",
+            Roles: []model.Role{
+                {Name: "basic"},
+                {Name: "admin"},
+            },
+        },
+    }
 
-	if err := repo.Create(&dummyRecord); err != nil {
+	if err := repo.Create(&userRecord); err != nil {
 		t.Fatalf("Failed to insert record: %v", err)
 	}
 
-	dummy, err := repo.FindById(dummyRecord.ID)
+	user, err := repo.FindById(userRecord.ID)
 	if err != nil {
 		t.Fatalf("Failed to query record: %v", err)
 	}
 
-	if dummy.Info != "testname" {
-		t.Errorf("Expected name to be 'testname', got '%s'", dummy.Info)
+	if user.Username != "testusername" {
+		t.Errorf("Expected name to be 'testusername', got '%s'", user.Username)
+	}
+
+    if user.Permission.Name != "PERM1" {
+		t.Errorf("Expected name to be 'PERM1', got '%s'", user.Permission.Name)
 	}
 }

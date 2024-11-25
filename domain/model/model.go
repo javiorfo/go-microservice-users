@@ -1,35 +1,38 @@
 package model
 
-import "github.com/javiorfo/go-microservice-lib/auditory"
-
-// Dummy represents a dada structure
-type Dummy struct {
-	ID   uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-	Info string `json:"info"`
-	auditory.Auditable
-}
+import (
+	"github.com/javiorfo/go-microservice-lib/auditory"
+	"github.com/javiorfo/go-microservice-users/security/pwd"
+)
 
 // User represents a dada structure
 type User struct {
-	ID         uint       `json:"id" gorm:"primaryKey;autoIncrement"`
-	Username   string     `json:"username"`
-	Email      string     `json:"email"`
-	Permission Permission `json:"permission"`
-	Password   string     `json:"-"`
-	Salt       string     `json:"-"`
-	Temporary  bool       `json:"-"`
+	ID           uint       `json:"id" gorm:"primaryKey;autoIncrement"`
+	Username     string     `json:"username"`
+	Email        string     `json:"email"`
+	PermissionID uint       `json:"-"`
+	Permission   Permission `json:"permission" gorm:"column:permission_id;not null"`
+	Password     string     `json:"-"`
+	Salt         string     `json:"-"`
+	Temporary    bool       `json:"-"`
 	auditory.Auditable
+}
+
+func (u User) VerifyPassword(password string) bool {
+	hashedInputPassword := pwd.Hash(password, u.Salt)
+	return hashedInputPassword == u.Password
 }
 
 // Permission represents a dada structure
 type Permission struct {
 	ID    uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-	Name  string `json:"name"`
-	Roles []Role `json:"roles"`
+	Name  string `json:"name" gorm:"unique"`
+	Roles []Role `json:"roles" gorm:"foreignKey:PermissionID"`
 }
 
 // Role represents a dada structure
 type Role struct {
-	ID   uint   `json:"id" gorm:"primaryKey;autoIncrement"`
-	Name string `json:"name"`
+	ID           uint   `json:"id" gorm:"primaryKey;autoIncrement"`
+	Name         string `json:"name" gorm:"unique"`
+	PermissionID uint   `json:"-" gorm:"column:permission_id;not null"`
 }

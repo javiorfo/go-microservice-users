@@ -13,8 +13,8 @@ func Inject(api fiber.Router) {
 	// Database
 	db := database.DBinstance
 
-	// Dummy: Repository, Servicer and Routes
-	dummyRepository := repository.NewDummyRepository(db)
-	dummyService := service.NewDummyService(dummyRepository)
-	routes.Dummy(api, config.TokenConfig, dummyService)
+    // User: Repository, Servicer and Routes
+	userRepository := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepository)
+	routes.User(api, config.TokenConfig, userService)
 }

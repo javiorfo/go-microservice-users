@@ -22,14 +22,14 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/dummy": {
+        "/": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get a list of dummies with pagination",
+                "description": "Get a list of users with pagination",
                 "consumes": [
                     "application/json"
                 ],
@@ -37,9 +37,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dummy"
+                    "user"
                 ],
-                "summary": "List all dummies",
+                "summary": "List all users",
                 "parameters": [
                     {
                         "type": "integer",
@@ -68,9 +68,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Paginated list of dummies",
+                        "description": "Paginated list of users",
                         "schema": {
-                            "$ref": "#/definitions/response.RestResponsePagination-model_Dummy"
+                            "$ref": "#/definitions/response.RestResponsePagination-model_User"
                         }
                     },
                     "400": {
@@ -93,7 +93,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new dummy item with the provided information",
+                "description": "Create a new user with the provided information",
                 "consumes": [
                     "application/json"
                 ],
@@ -101,26 +101,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dummy"
+                    "user"
                 ],
-                "summary": "Create a new dummy item",
+                "summary": "Create a new user",
                 "parameters": [
                     {
-                        "description": "Dummy information",
-                        "name": "dummy",
+                        "description": "User information",
+                        "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.Dummy"
+                            "$ref": "#/definitions/request.User"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
                         "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.Dummy"
-                        }
+                        "schema": {}
                     },
                     "400": {
                         "description": "Invalid request body or validation errors",
@@ -137,14 +135,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/dummy/{id}": {
-            "get": {
+        "/login": {
+            "post": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get dummy details by ID",
+                "description": "Login a user and return a JWT token",
                 "consumes": [
                     "application/json"
                 ],
@@ -152,13 +150,62 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dummy"
+                    "user"
                 ],
-                "summary": "Find a dummy by ID",
+                "summary": "Login user",
+                "parameters": [
+                    {
+                        "description": "Username and password",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.LoginUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Invalid request body or validation errors",
+                        "schema": {
+                            "$ref": "#/definitions/response.restResponseError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.restResponseError"
+                        }
+                    }
+                }
+            }
+        },
+        "/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get user details by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Find a user by ID",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Dummy ID",
+                        "description": "User ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -168,7 +215,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Dummy"
+                            "$ref": "#/definitions/model.User"
                         }
                     },
                     "400": {
@@ -188,24 +235,99 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "model.Dummy": {
+        "model.Permission": {
             "type": "object",
             "properties": {
                 "id": {
                     "type": "integer"
                 },
-                "info": {
+                "name": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Role"
+                    }
+                }
+            }
+        },
+        "model.Role": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }
         },
-        "request.Dummy": {
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "permission": {
+                    "$ref": "#/definitions/model.Permission"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.LoginUser": {
             "type": "object",
             "required": [
-                "info"
+                "password",
+                "username"
             ],
             "properties": {
-                "info": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.Permission": {
+            "type": "object",
+            "required": [
+                "name",
+                "roles"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "request.User": {
+            "type": "object",
+            "required": [
+                "email",
+                "permission",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "permission": {
+                    "$ref": "#/definitions/request.Permission"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -235,13 +357,13 @@ const docTemplate = `{
                 }
             }
         },
-        "response.RestResponsePagination-model_Dummy": {
+        "response.RestResponsePagination-model_User": {
             "type": "object",
             "properties": {
                 "elements": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.Dummy"
+                        "$ref": "#/definitions/model.User"
                     }
                 },
                 "pagination": {
