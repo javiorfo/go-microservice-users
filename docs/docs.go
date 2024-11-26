@@ -260,6 +260,12 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Permission"
+                    }
                 }
             }
         },

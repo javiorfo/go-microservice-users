@@ -16,6 +16,10 @@ definitions:
         type: integer
       name:
         type: string
+      permissions:
+        items:
+          $ref: '#/definitions/model.Permission'
+        type: array
     type: object
   model.User:
     properties:

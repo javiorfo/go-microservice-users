@@ -183,8 +183,8 @@ func Login(us service.UserService) fiber.Handler {
 		token, err := us.Login(userRequest.Username, userRequest.Password)
 
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).
-				JSON(response.InternalServerError(c, err.Error()))
+            return c.Status(fiber.StatusBadRequest).
+				JSON(response.NewRestResponseErrorWithCodeAndMsg(c, USER_LOGIN_ERROR, err.Error()))
 		}
 
 		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"token": token})

@@ -5,15 +5,16 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/javiorfo/go-microservice-lib/security"
 	"github.com/javiorfo/go-microservice-users/config"
 	"github.com/javiorfo/go-microservice-users/security/pwd"
 	"github.com/javiorfo/go-microservice-users/security/token"
 	"github.com/stretchr/testify/assert"
 )
 
-var permissions = map[string][]string{
-	"read":  {"user", "admin"},
-	"write": {"user", "admin"},
+var permission = security.TokenPermission{
+	Name:  "read",
+	Roles: []string{"user", "admin"},
 }
 
 const username = "testuser"
@@ -22,7 +23,7 @@ const defaultTokenDuration = 300
 func TestCreateWithDuration(t *testing.T) {
 	duration := 10 * time.Second
 
-	tokenString, err := token.CreateWithDuration(permissions, username, duration)
+	tokenString, err := token.CreateWithDuration(permission, username, duration)
 	assert.NoError(t, err)
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
@@ -34,14 +35,14 @@ func TestCreateWithDuration(t *testing.T) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	assert.True(t, ok)
 	assert.Equal(t, username, claims["sub"])
-	assert.NotEmpty(t, claims["permissions"])
+	assert.NotEmpty(t, claims["permission"])
 	assert.Equal(t, config.TokenConfig.Issuer, claims["iss"])
 	exp, _ := claims.GetExpirationTime()
 	assert.WithinDuration(t, time.Now().Add(duration), exp.Time, 1*time.Second)
 }
 
 func TestCreate(t *testing.T) {
-	tokenString, err := token.Create(permissions, username)
+	tokenString, err := token.Create(permission, username)
 	assert.NoError(t, err)
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
@@ -53,7 +54,7 @@ func TestCreate(t *testing.T) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	assert.True(t, ok)
 	assert.Equal(t, username, claims["sub"])
-	assert.NotEmpty(t, claims["permissions"])
+	assert.NotEmpty(t, claims["permission"])
 	assert.Equal(t, config.TokenConfig.Issuer, claims["iss"])
 	exp, _ := claims.GetExpirationTime()
 	assert.WithinDuration(t, time.Now().Add(defaultTokenDuration*time.Second), exp.Time, 1*time.Second)

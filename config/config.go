@@ -37,6 +37,6 @@ var (
 	TokenConfig = security.TokenConfig{
 		SecretKey: env.GetEnvOr("JWT_SECRET_KEY", []byte("secret-key")),
 		Issuer:    env.GetEnvOr("JWT_ISSUER", "https://users.com"),
-		Enabled:   false,
+		Enabled:   true,
 	}
 )

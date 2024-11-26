@@ -10,15 +10,15 @@ import (
 	"github.com/javiorfo/go-microservice-users/config"
 )
 
-func Create(permissions map[string][]string, username string) (string, error) {
-	return CreateWithDuration(permissions, username, time.Duration(config.TokenDuration * int(time.Second)))
+func Create(permission security.TokenPermission, username string) (string, error) {
+	return CreateWithDuration(permission, username, time.Duration(config.TokenDuration*int(time.Second)))
 }
 
-func CreateWithDuration(permissions map[string][]string, username string, duration time.Duration) (string, error) {
+func CreateWithDuration(permission security.TokenPermission, username string, duration time.Duration) (string, error) {
 	tc := config.TokenConfig
 	claims := security.TokenClaims{
-		Permissions: permissions,
-		Audience:    config.TokenAudience,
+		Permission: permission,
+		Audience:   config.TokenAudience,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    tc.Issuer,
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -41,5 +41,5 @@ func Refresh(oldToken string) (string, error) {
 	if !ok {
 		return "", errors.New("Invalid token")
 	}
-	return Create(claims.Permissions, claims.Subject)
+	return Create(claims.Permission, claims.Subject)
 }

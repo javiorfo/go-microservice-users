@@ -8,7 +8,7 @@ require (
 	github.com/gofiber/swagger v1.1.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.6.0
-	github.com/javiorfo/go-microservice-lib v0.0.0-20241125193317-50f7a4f5e83e
+	github.com/javiorfo/go-microservice-lib v0.0.0-20241126152022-378d2f451a68
 	github.com/javiorfo/steams v0.2.0
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/swag v1.16.3

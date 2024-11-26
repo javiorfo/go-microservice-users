@@ -4,10 +4,12 @@ import (
 	"errors"
 
 	"github.com/javiorfo/go-microservice-lib/pagination"
+	"github.com/javiorfo/go-microservice-lib/security"
 	"github.com/javiorfo/go-microservice-users/domain/model"
 	"github.com/javiorfo/go-microservice-users/domain/repository"
 	"github.com/javiorfo/go-microservice-users/security/pwd"
 	"github.com/javiorfo/go-microservice-users/security/token"
+	"github.com/javiorfo/steams"
 )
 
 type UserService interface {
@@ -50,11 +52,11 @@ func (service *userService) Create(user *model.User) (*string, error) {
 	user.Salt = salt
 	user.Password = hashedPassword
 
-    if err := service.repository.Create(user); err != nil {
-        return nil, err
-    }
+	if err := service.repository.Create(user); err != nil {
+		return nil, err
+	}
 
-    return &generatedPassword, nil
+	return &generatedPassword, nil
 }
 
 func (service *userService) Login(username, password string) (string, error) {
@@ -64,9 +66,15 @@ func (service *userService) Login(username, password string) (string, error) {
 	}
 
 	if user.VerifyPassword(password) {
-		return token.Create(map[string][]string{
-            "PERM": {"admin"},
-        }, username)
+		return token.Create(createTokenPermission(user.Permission), username)
 	}
 	return "", errors.New("Username or password incorrect")
+}
+
+func createTokenPermission(permission model.Permission) security.TokenPermission {
+	roles := steams.OfSlice(permission.Roles).MapToString(func(r model.Role) string {
+		return r.Name
+	}).Collect()
+
+	return security.TokenPermission{Name: permission.Name, Roles: roles}
 }
