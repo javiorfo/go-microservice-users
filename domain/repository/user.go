@@ -27,7 +27,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 func (repository *userRepository) FindById(id uint) (*model.User, error) {
 	var user model.User
 
-    result := repository.Preload("Permission").Find(&user, "id = ?", id)
+    result := repository.Preload("Permission.Roles").Find(&user, "id = ?", id)
 
 	if err := result.Error; err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (repository *userRepository) FindById(id uint) (*model.User, error) {
 func (repository *userRepository) FindByUsername(username string) (*model.User, error) {
 	var user model.User
 
-    result := repository.Preload("Permission").Find(&user, "username = ?", username)
+    result := repository.Preload("Permission.Roles").Find(&user, "username = ?", username)
 
 	if err := result.Error; err != nil {
 		return nil, err
