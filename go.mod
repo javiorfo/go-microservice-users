@@ -9,7 +9,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.6.0
 	github.com/javiorfo/go-microservice-lib v0.0.0-20241126152022-378d2f451a68
-	github.com/javiorfo/steams v0.2.0
+	github.com/javiorfo/steams v1.0.0
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/swag v1.16.3
 	github.com/testcontainers/testcontainers-go v0.32.0
