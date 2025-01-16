@@ -5,6 +5,8 @@ import (
 	"github.com/javiorfo/go-microservice-lib/security"
 	"github.com/javiorfo/go-microservice-users/internal/database"
 )
+// IMPORTANT
+// If .env exists it uses the environment variables, otherwise the fallback
 
 // App configuration
 const (
